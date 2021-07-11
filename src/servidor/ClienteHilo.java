@@ -7,6 +7,7 @@ package servidor;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -61,10 +62,24 @@ public class ClienteHilo extends Thread{
                         }
                         break;
                     case 4:
+                        int numLineasCliente = in.readInt();
+                        System.out.println("Hay "+numLineasCliente+"numeros de este cliente");
                         break;
                     case 5:
+                        int limiteFichero = in.readInt();
+                        byte[] contenidoFichero  =new byte[limiteFichero];
+                        for(int i=0; i<limiteFichero; i++){
+                            contenidoFichero[i]=in.readByte();
+                            
+                        }
+                        String contenido = new String(contenidoFichero);
+                        FileWriter fw = new FileWriter("numeros_cliente.txt");
+                        fw.write(contenido);
+                        fw.close();
+                        
                         break;
                     case 6:
+                        salir= true;
                         break;
                     default:
                         mensaje = in.readUTF();

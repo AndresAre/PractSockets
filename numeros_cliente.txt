@@ -1,6 +1,3 @@
-Alfredo:20
-Alfredo:55
-Alfredo:86
 Andres:86
 Andres:29
 Andres:38

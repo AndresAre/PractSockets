@@ -1,7 +1,13 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * La aplicacion servidor debe atender a multiples clientes y el cliente se conectará al servidor.
+ * Por cada cliente que se conecte, el servidor creara un hilo para el mismo.
+ *  https://www.youtube.com/watch?v=VuqhED5zbfg
+ * 1. Almacenar un numero en un archivo, se almacenarán en un archivo de texto 'numeros.txt' donde el contenido será
+ * el nombre del cliente y el número, separados por dos puntos (Ejemplo C3:2)
+ * 2. Devolver cuántas números se han almacenado hasta el momento.
+ * 3. Devolver la lista de números almacenados
+ * 4. Devuelve el número de números almacenados por el cliente.
+ * 5. Recibir un archivo, sólo, con sus numeros.
  */
 package servidor;
 
@@ -47,7 +53,7 @@ public class Servidor {
                 out.writeUTF("Indica tu nombre");
                 String nombreCliente = in.readUTF();
             
-                ServidorHilo hilo = new ServidorHilo(in, out, nombreCliente);
+                ServidorHilo hilo = new ServidorHilo(sc, in, out, nombreCliente);
                 hilo.start();
                 
                 System.out.println("Creada la conexion con el cliente: "+nombreCliente);

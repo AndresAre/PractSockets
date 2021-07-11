@@ -13,6 +13,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,11 +21,13 @@ import java.util.logging.Logger;
 
 public class ServidorHilo extends Thread{
     
+    private Socket sc;
     private DataInputStream in;
     private DataOutputStream out;
     private String nombreCliente;
     
-    public ServidorHilo(DataInputStream in, DataOutputStream out, String nombreCliente) {
+    public ServidorHilo(Socket sc, DataInputStream in, DataOutputStream out, String nombreCliente) {
+        this.sc = sc;
         this.in = in;
         this.out = out;
         this.nombreCliente = nombreCliente;
@@ -36,8 +39,8 @@ public class ServidorHilo extends Thread{
         
         int opcion;
         File f = new File("numeros.txt");
-        
-        while(true){
+        boolean salir = false;
+        while(!salir){
             try{
                 opcion = in.readInt();
                 switch(opcion){
@@ -59,10 +62,20 @@ public class ServidorHilo extends Thread{
                      }
                      break;
                  case 4:
+                     int numLineasCliente = numerosLineasFicheroCliente(f);
+                     out.writeInt(numLineasCliente);
                      break;
                  case 5:
+                     byte[] contenidoFichero = ficheroNumeroCliente(f);
+                     out.writeInt(contenidoFichero.length);
+                     
+                     for(int i=0; i< contenidoFichero.length; i++){
+                         out.writeByte(contenidoFichero[i]);
+                     }
+                     
                      break;
                  case 6:
+                     salir= true;
                      break;
                  default:
                      out.writeUTF("Solo numero del 1 al 6");
@@ -72,7 +85,12 @@ public class ServidorHilo extends Thread{
                 Logger.getLogger(ServidorHilo.class.getName()).log(Level.SEVERE,null,ex);
             }
         }
-        
+        try {
+            sc.close();
+        } catch (IOException ex) {
+            Logger.getLogger(ServidorHilo.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        System.out.println("Conexion cerrada con el cliente "+nombreCliente);
     }
     
     public void escribirNumeroAleatorio(File f,int numeroAleatorio)throws IOException{
@@ -107,5 +125,39 @@ public class ServidorHilo extends Thread{
         br.close();
         return numeros;
     }
-    
+        public int numerosLineasFicheroCliente(File f) throws FileNotFoundException, IOException{
+        int numLineas=0;
+        BufferedReader br = new BufferedReader(new FileReader(f));
+        
+        String linea = "";
+        
+        while((linea=br.readLine())!=null){
+            String[] partes = linea.split(":");
+            if(partes[0].equals(nombreCliente)){
+               numLineas++;
+            }
+        }
+        
+        br.close();
+        return numLineas;
+    }
+        public byte[] ficheroNumeroCliente(File f) throws FileNotFoundException, IOException{
+            
+        BufferedReader br = new BufferedReader(new FileReader(f));
+        
+        String contenido="";
+        String linea = "";
+        
+        while((linea=br.readLine())!=null){
+            String[] partes = linea.split(":");
+            if(partes[0].equals(nombreCliente)){
+               contenido += linea+"\r\n";
+            }
+        }
+        
+        br.close();
+        
+        return contenido.getBytes();
+        
+        }
 }
